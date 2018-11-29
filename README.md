@@ -1,7 +1,7 @@
 # React-PizzaMaker
 A single page Pizza Maker program on React 16
 
-See it in action: Click [http://stanislavv.ca/React/PizzaMaker1](here)
+See it in action: Click [http://stanislavv.ca/React/PizzaMaker1](http://stanislavv.ca/React/PizzaMaker1)
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
