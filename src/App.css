@@ -110,6 +110,7 @@ div.wholeblackout > div.whiteRectangle
   max-width:500px;
   margin:2em;
   padding:2em;
+  position:relative;
 }
 
 div.checkoutButtons
@@ -125,4 +126,17 @@ div.checkoutButtons
 div.checkoutButtons > button
 {
   margin:3em 0 0 0.5em;
+}
+
+#closeWindow
+{
+  position:absolute;
+  cursor:pointer;
+  font-size:1.5em;
+  top:0;
+  right:0.1em;
+  -webkit-display:flex;
+  display:flex;
+  -webkit-align-items:flex-start;
+  align-items:flex-start;
 }

@@ -17,7 +17,6 @@ const navBar = (props) => {
         <ul className="navbar-nav mr-auto">
           <NavigationLink name="The Builder" url="#" isActive={true}/>
           <NavigationLink name="Authentication" url="#" isActive={false} />
-          <NavigationLink name="Info" url="#" />
         </ul>
       </div>
     </nav>

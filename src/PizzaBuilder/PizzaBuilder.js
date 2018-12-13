@@ -1,7 +1,6 @@
 //Recall that not only React, but also { Component } is needed from react
 //When we want to declare a stateful component (with class)
 import axios from 'axios';
-import qs from 'qs';
 import React, { Component } from 'react';
 
 //The images
@@ -18,6 +17,7 @@ import vegetablesImage from './../images/vegetables.jpg';
 import IngredientBlock from './IngredientBlock/IngredientBlock.js';
 import ShowScreen from './ShowScreen/ShowScreen.js';
 import OrderSummary from './../Ordering/OrderSummary.js';
+import PizzaLoader from './../Loading/PizzaLoader.js';
 
 let ingredientsInfoStatic = {
   coldCuts: {
@@ -74,6 +74,7 @@ class PizzaBuilder extends Component {
       checkoutPageActivated: false,
       pizzaSaved: false,
       pizzaConfirmationNumber: 0,
+      loadWindowActivated: false,
     };
     this.fillPizzaComposition();
 
@@ -189,34 +190,49 @@ class PizzaBuilder extends Component {
   //Save the pizza -> just value
   savePizzaConfiguration = () =>
   {
-    let pizzaConfirmationNumber = 0;
-    //If no confirmation number, generate one
-    if(this.state.pizzaConfirmationNumber == 0)
+    //Depending on the confirmation number, different operations:
+    if(this.state.pizzaConfirmationNumber != 0)
     {
-      pizzaConfirmationNumber = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      this.setState({pizzaConfirmationNumber: pizzaConfirmationNumber});
+      axios.put('/savedPizza/' + this.state.pizzaConfirmationNumber + ".json", {pizzaComposition: this.state.pizzaComposition})
+      .then((response) => {
+        this.setState({pizzaSaved: true});
+      })
+      .catch((error) => {console.log('Error saving pizza', error)});
     }
     else
     {
-      pizzaConfirmationNumber = this.state.pizzaConfirmationNumber;
+      //post - first time
+      axios.post('/savedPizza.json', {pizzaComposition: this.state.pizzaComposition})
+      .then((response) => {
+        this.setState({pizzaSaved: true});
+        this.setState({pizzaConfirmationNumber: response.data.name});
+      })
+      .catch((error) => {console.log('Error saving pizza', error)});
     }
 
-    this.setState({pizzaSaved: true});
+  };
 
-    //Note: even when saving, use .post('/...name.json')
-    axios.post('/savedPizza.json', {pizzaComposition: this.state.pizzaComposition, pizzaConfirmationNumber: pizzaConfirmationNumber})
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((error) => {console.log('Error saving pizza', error)});
+  //Open up the load window
+  toggleLoadWindow = () =>
+  {
+    let tempValue = this.state.loadWindowActivated;
+    this.setState({loadWindowActivated: !tempValue});
+  };
 
+  //Load info that was fetched  - in this case, pizza composition
+  loadPizzaComposition = (newComposition) =>
+  {
+    this.setState({pizzaComposition: newComposition});
 
   };
+
   //The render method returns JSX that we print
 
   //!Note: to cycle through an object with map (for printing in render),
   //Use the Object.keys(theObj) tactic!
   render(){
+
+    //Check if order window is allowed
     let orderWindow = null;
 
     if(this.enableCheckoutButton() && this.state.checkoutPageActivated)
@@ -230,9 +246,17 @@ class PizzaBuilder extends Component {
     }
 
 
+    //Check if loading window on
+    let loadWindow = null;
+    if(this.state.loadWindowActivated)
+    {
+      loadWindow = <PizzaLoader toggleLoadWindow={this.toggleLoadWindow} />;
+    }
+
     return(
       <main role="main" className="container">
         <br/><br/>
+        {loadWindow}
         <div className="container">
 
               {orderWindow}
@@ -258,6 +282,8 @@ class PizzaBuilder extends Component {
                     resetHandler={this.resetPizza}
                     saveHandler={this.savePizzaConfiguration}
                     checkoutHandler={this.checkoutPageToggler}
+                    pizzaConfirmationNumber={this.state.pizzaConfirmationNumber}
+                    toggleLoadWindow={this.toggleLoadWindow}
                     />
               </div>
 
