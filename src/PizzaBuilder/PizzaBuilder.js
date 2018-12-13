@@ -1,5 +1,7 @@
 //Recall that not only React, but also { Component } is needed from react
 //When we want to declare a stateful component (with class)
+import axios from 'axios';
+import qs from 'qs';
 import React, { Component } from 'react';
 
 //The images
@@ -17,7 +19,7 @@ import IngredientBlock from './IngredientBlock/IngredientBlock.js';
 import ShowScreen from './ShowScreen/ShowScreen.js';
 import OrderSummary from './../Ordering/OrderSummary.js';
 
-const ingredientsInfo = {
+let ingredientsInfoStatic = {
   coldCuts: {
     price: 5,
     image: coldCutsImage,
@@ -67,12 +69,17 @@ class PizzaBuilder extends Component {
       pizzaComposition: {
 
       },
+      ingredientsInfo: {...ingredientsInfoStatic},
       basePrice: 3.00,
       checkoutPageActivated: false,
+      pizzaSaved: false,
+      pizzaConfirmationNumber: 0,
     };
     this.fillPizzaComposition();
 
   };
+
+
 
 
   //Fill the pizza composition now
@@ -87,7 +94,7 @@ class PizzaBuilder extends Component {
   {
     let tempPizzaObject = {};
 
-    let keysArray = Object.keys(ingredientsInfo);
+    let keysArray = Object.keys(this.state.ingredientsInfo);
     for(let i=0; i<keysArray.length; i++)
     {
       tempPizzaObject[keysArray[i]] = 0;
@@ -105,7 +112,7 @@ class PizzaBuilder extends Component {
     let keysIngredients = Object.keys(this.state.pizzaComposition);
     for(let i=0; i<keysIngredients.length; i++)
     {
-      total += this.state.pizzaComposition[keysIngredients[i]]*ingredientsInfo[keysIngredients[i]].price;
+      total += this.state.pizzaComposition[keysIngredients[i]]*this.state.ingredientsInfo[keysIngredients[i]].price;
     }
 
     return parseFloat(Math.round(total * 100) / 100).toFixed(2);
@@ -125,6 +132,12 @@ class PizzaBuilder extends Component {
     if(newComposition[type] < 0){
       newComposition[type] = 0;
     }
+    //Only save the pizza when something actually changed
+    //Otherwise: from 0 to 0, it will toggle the Save Button
+    else
+    {
+      this.setState({pizzaSaved: false});
+    }
 
     this.setState({pizzaComposition: newComposition});
     this.checkoutPageToggler(false);
@@ -141,7 +154,9 @@ class PizzaBuilder extends Component {
   resetPizza = () =>
   {
     this.setState({pizzaComposition: this.generateEmptyPizza()});
+    this.setState({pizzaSaved: false});
     this.checkoutPageToggler(false);
+
   };
 
   //Modify the checkoutActivated
@@ -150,7 +165,53 @@ class PizzaBuilder extends Component {
     this.setState({checkoutPageActivated: bool});
   };
 
+  //Component did mount
+  componentDidMount = () =>
+  {
+    let currentScope = this;
 
+    axios.get('/ingredientPrices.json')
+    .then((response) => {
+      //Update the prices now
+      //For each ingredient, modify its price
+      let tempIngredientsInfo = this.state.ingredientsInfo;
+      Object.keys(response.data).map(aKey => {
+        tempIngredientsInfo[aKey].price = response.data[aKey].price;
+      });
+
+      //However, this is a nested object so re-render not executed!
+      this.setState({ingredientsInfo: tempIngredientsInfo});
+
+    })
+    .catch((error) => {console.log('Error fetching info', error)});
+  };
+
+  //Save the pizza -> just value
+  savePizzaConfiguration = () =>
+  {
+    let pizzaConfirmationNumber = 0;
+    //If no confirmation number, generate one
+    if(this.state.pizzaConfirmationNumber == 0)
+    {
+      pizzaConfirmationNumber = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      this.setState({pizzaConfirmationNumber: pizzaConfirmationNumber});
+    }
+    else
+    {
+      pizzaConfirmationNumber = this.state.pizzaConfirmationNumber;
+    }
+
+    this.setState({pizzaSaved: true});
+
+    //Note: even when saving, use .post('/...name.json')
+    axios.post('/savedPizza.json', {pizzaComposition: this.state.pizzaComposition, pizzaConfirmationNumber: pizzaConfirmationNumber})
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {console.log('Error saving pizza', error)});
+
+
+  };
   //The render method returns JSX that we print
 
   //!Note: to cycle through an object with map (for printing in render),
@@ -162,7 +223,7 @@ class PizzaBuilder extends Component {
     {
       orderWindow = <OrderSummary
                       checkoutPageToggle={this.checkoutPageToggler}
-                      ingredientsInfo={ingredientsInfo}
+                      ingredientsInfo={this.state.ingredientsInfo}
                       pizzaComposition={this.state.pizzaComposition}
                       totalPrice={this.calculateTotalPrice()}
                       />;
@@ -184,16 +245,18 @@ class PizzaBuilder extends Component {
               <div className="row">
                   <ShowScreen
                     pizzaComposition={this.state.pizzaComposition}
-                    ingredientsInfo={ingredientsInfo}
+                    ingredientsInfo={this.state.ingredientsInfo}
                     pizzaCrustImage={pizzaCrustImage}
                    />
                   <IngredientBlock
                     totalPrice={this.calculateTotalPrice()}
-                    ingredientsInfo={ingredientsInfo}
+                    ingredientsInfo={this.state.ingredientsInfo}
                     pizzaComposition={this.state.pizzaComposition}
                     clickHandler={this.clickHandler}
                     checkoutEnabled={this.enableCheckoutButton()}
+                    savingEnabled={!this.state.pizzaSaved}
                     resetHandler={this.resetPizza}
+                    saveHandler={this.savePizzaConfiguration}
                     checkoutHandler={this.checkoutPageToggler}
                     />
               </div>

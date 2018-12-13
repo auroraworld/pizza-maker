@@ -1,9 +1,9 @@
 import React from 'react';
+import Modal from './../Special/Modal.js';
 
 const ordersummary = (props) => {
   return(
-      <div className="wholeblackout">
-        <div className="whiteRectangle">
+    <Modal>
           <h3>Your Order</h3>
           <br/>
           <p>The pizza has the following ingredients:</p>
@@ -29,8 +29,7 @@ const ordersummary = (props) => {
             <button type="button" className="btn btn-dark" onClick={() => {props.checkoutPageToggle(false)}}>Cancel</button>
             <button type="button" className="btn btn-primary" onClick={() => {alert("You continue!");}}>Continue</button>
           </div>
-        </div>
-      </div>
+     </Modal>
   );
 };
 
