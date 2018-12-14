@@ -220,10 +220,12 @@ class PizzaBuilder extends Component {
   };
 
   //Load info that was fetched  - in this case, pizza composition
-  loadPizzaComposition = (newComposition) =>
+  loadPizzaComposition = (newComposition, newNumber) =>
   {
     this.setState({pizzaComposition: newComposition});
-
+    this.toggleLoadWindow();
+    this.setState({pizzaConfirmationNumber: newNumber});
+    this.setState({pizzaSaved: true});
   };
 
   //The render method returns JSX that we print
@@ -250,7 +252,7 @@ class PizzaBuilder extends Component {
     let loadWindow = null;
     if(this.state.loadWindowActivated)
     {
-      loadWindow = <PizzaLoader toggleLoadWindow={this.toggleLoadWindow} />;
+      loadWindow = <PizzaLoader toggleLoadWindow={this.toggleLoadWindow}  loadPizzaComposition={this.loadPizzaComposition }/>;
     }
 
     return(
