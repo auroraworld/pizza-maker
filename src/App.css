@@ -157,3 +157,61 @@ div.checkoutButtons > button
   100% { transform: rotate(360deg); }
 }
 /* Loading screen end */
+
+
+div.appSpacer
+{
+  margin-bottom:4em;
+}
+
+div.ingredientList
+{
+  display:flex;
+  justify-content: center;
+  flex-wrap:wrap;
+}
+
+div.ingredientList > div.ingredientLink
+{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+div.ingredientList > div.ingredientLink > div.card
+{
+  top:0em;
+}
+
+div.ingredientList > div.ingredientLink > div.card:hover
+{
+  position:relative;
+  top:-1em;
+  transition:all 0.5s ease 0s;
+  cursor:pointer;
+}
+
+div.ingredientList > div.ingredientLink > h4
+{
+  font-size:1.25em;
+  font-weight:normal;
+  margin:0;
+}
+
+/*
+Navigation menu starts here
+*/
+nav a.navbar-brand.mainOne
+{
+  font-size:1.5em;
+}
+
+nav a.navbar-brand
+{
+  font-size:1em;
+}
+
+div.App nav.navbar a.activeLink
+{
+  color:silver;
+}
