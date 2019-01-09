@@ -215,3 +215,10 @@ div.App nav.navbar a.activeLink
 {
   color:silver;
 }
+
+
+div.particularIngredient
+{
+  border:1px solid gray;
+  margin-top:3em;
+}

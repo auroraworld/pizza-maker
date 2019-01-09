@@ -1,10 +1,13 @@
 //Usual React stuff
-import React from 'react';
+import React, {Suspense} from 'react';
 import { Route, NavLink } from 'react-router-dom';
 
 //Static info for the ingredients
 import { ingredientsInfoStatic } from './../Special/IngredientsInfo.js';
-import Ingredient from './../Ingredients/Ingredient.js';
+
+//Lazy loading for ingredient (none selected in beginning)
+const Ingredient = React.lazy(() => import('./../Ingredients/Ingredient.js'));
+
 
 
 const ingredientList = () => {
@@ -30,7 +33,12 @@ const ingredientList = () => {
         })
       }
       </div>
-      <Route path="/ingredients/:theName" component={Ingredient} />
+      <Route path="/ingredients/:theName" exact
+        render={(props) => (
+          <Suspense fallback={<div>Loading ingredient ...</div>}>
+            <Ingredient {...props} />
+            </Suspense>
+        )} />
     </main>
   );
 };

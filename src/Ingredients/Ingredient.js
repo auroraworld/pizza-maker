@@ -1,10 +1,12 @@
 import React from 'react';
 
 const ingredient = (props) => {
-
   return(
-    <h2>This is an ingredient called: {props.match.params.theName}</h2>
-  );
+    <div className="particularIngredient container">
+      <h2>This is an ingredient with callname: {props.match.params.theName}</h2>
+      <p>And with this particular information, many things are possible :) </p>
+    </div>
+);
 };
 
 
