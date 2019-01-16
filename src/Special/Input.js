@@ -19,7 +19,7 @@ const input = (props) => {
   let inputElement = null;
 
   //Switch with cases
-  switch(props.elementType)
+  switch(props.type)
   {
     //Covers input AND checkbox
     //Checkbox - checked="checked" and disabled possible
@@ -30,9 +30,9 @@ const input = (props) => {
       inputElement =
       <input
         className="form-control"
-        {...props.elementConfig}
-        value={props.value}
-        onChange={props.changed}
+        {...props.details.elementConfig}
+        value={props.details.value}
+        onChange={props.details.changed}
       />
       ;
     break;
@@ -70,6 +70,7 @@ const input = (props) => {
         {...props.elementConfig}
         value={props.value}
         onChange={props.changed}
+        placeholder={'da eba'}
       />
       ;
     break;

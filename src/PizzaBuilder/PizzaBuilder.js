@@ -34,7 +34,7 @@ class PizzaBuilder extends Component {
     };
     this.fillPizzaComposition();
 
-  };
+  }
 
 
 

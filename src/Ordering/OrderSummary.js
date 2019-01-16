@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from './../Special/Modal.js';
+import { withRouter } from 'react-router-dom';
 
 const ordersummary = (props) => {
   return(
@@ -27,11 +28,11 @@ const ordersummary = (props) => {
           <p>Continue to checkout?</p>
           <div className="checkoutButtons">
             <button type="button" className="btn btn-dark" onClick={() => {props.checkoutPageToggle(false)}}>Cancel</button>
-            <button type="button" className="btn btn-primary" onClick={() => {alert("You continue!");}}>Continue</button>
+            <button type="button" className="btn btn-primary" onClick={() => {props.history.push('/checkout')}}>Continue</button>
           </div>
      </Modal>
   );
 };
 
 
-export default ordersummary;
+export default withRouter(ordersummary);
