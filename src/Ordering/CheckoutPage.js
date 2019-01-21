@@ -31,7 +31,7 @@ class CheckoutPage extends Component
           elementType: 'select',
           elementConfig:{
             options: [
-              {value:'delivered', displayValue: 'Delivery'},
+              {value:'delivered', displayValue: 'Delivery', selected:true},
               {value:'pickedup', displayValue: 'Local pickup'}
             ],
           },
@@ -47,8 +47,8 @@ class CheckoutPage extends Component
           elementType:'radio',
           elementConfig:{
             options:[
-              {value:'yes', displayValue: 'Yes', selected: true},
-              {value:'no', displayValue: 'No'},
+              {value:'yes', displayValue: 'Yes', checked: false},
+              {value:'no', displayValue: 'No', checked: true},
             ],
             name:'regular',
           },
@@ -82,7 +82,9 @@ class CheckoutPage extends Component
 
   //Generally, this can be used for all input types
   generalInputModifier = (event, identifier) =>
-  {
+  {//TODO : fix
+    console.log('identifier', identifier);
+    console.log('event', event);
     //Original value of order form - get it now
     //and clone it (not just reference copying)
     //Don't directly modify it -> recall that we should use setState instead
@@ -125,6 +127,52 @@ class CheckoutPage extends Component
     this.setState({orderForm: modifiedState});
   }
 
+  //Reset button - reset the values
+  resetButtonHandler = () => {
+    //Set all values to '', uncheck check boxes,
+    //Put initial selection for the first element of radio buttons
+    let copyForm = this.state.orderForm;
+
+    for(var key in copyForm)
+    {
+      copyForm[key].value = '';
+
+      switch(key)
+      {
+        //Special case: regular client -> No
+        case 'regularClient':
+          copyForm[key].elementConfig.options[0].checked = false;
+          copyForm[key].elementConfig.options[1].checked = true;
+        break;
+
+        //Another special case: has coupon - no by default
+        case 'hasCoupon':
+          copyForm[key].elementConfig.checked = false;
+        break;
+
+        //Select menu
+        case '':
+          copyForm[key].elementConfig.options[0].selected = true;
+          copyForm[key].elementConfig.options[0].selected = false;
+        break;
+
+        //Coupon code disable
+        case 'couponCode':
+          copyForm[key].elementConfig.disabled = true;
+        break;
+      }
+
+    }
+
+    //Finally, set the state
+    this.setState({orderForm: copyForm});
+  }
+
+  //Click on submit -> we must verify the input
+  submitButtonHandler = () => {
+    alert('Submitted!');
+  }
+
 
   //The render method
   render(){
@@ -147,8 +195,9 @@ class CheckoutPage extends Component
         {
           formArray.map(element => {
             return(
-              <div className="form-group">
+              <div className="form-group" key={element.id}>
                 <Input
+                  id={'input'+element.id}
                   type={element.details.elementType}
                   {...element.details}
                   changed={(event) => {this.generalInputModifier(event, element.id)}}
@@ -157,6 +206,10 @@ class CheckoutPage extends Component
             );
           })
         }
+        <div className="form-group buttonContainer">
+        <button type="button" className="btn btn-secondary" onClick={() => {this.resetButtonHandler();}}>Reset</button>
+        <button type="button" className="btn btn-primary" onClick={() => {this.submitButtonHandler();}}>Submit</button>
+        </div>
       </form>
     );
     console.log(formArray);

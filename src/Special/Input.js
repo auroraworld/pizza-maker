@@ -53,8 +53,8 @@ const input = (props) => {
           onChange={props.changed}
         >
           {
-            props.elementConfig.options.map(anOption => (
-              <option key={anOption.value} value={anOption.value}>
+            props.elementConfig.options.map((anOption, index) => (
+              <option key={anOption.value + index} value={anOption.value}>
                 {anOption.displayValue}
               </option>
             ))
@@ -66,11 +66,16 @@ const input = (props) => {
       inputElement =
         <div className="radioContainer">
         {
-          props.elementConfig.options.map(anOption => (
-              <>
-              <input type="radio" name={props.elementConfig.name} value={anOption.value} onChange={props.changed}/>
-              <label>{anOption.displayValue}</label>
-              </>
+          props.elementConfig.options.map((anOption, index) => (
+              <div className="radioSingle" key={props.id+index+'radio'}>
+                <input type="radio"
+                  name={props.elementConfig.name}
+                  value={anOption.value}
+                  onChange={props.changed}
+                  checked={anOption.checked}
+                />
+                <label>{anOption.displayValue}</label>
+              </div>
           ))
         }
         </div>
