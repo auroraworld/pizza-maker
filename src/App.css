@@ -238,17 +238,41 @@ form.checkoutForm > div.form-group
   align-items:center;
   -webkit-justify-content:center;
   justify-content: center;
-}
-
-form.checkoutForm > div.form-group > label
-{
-  margin-right:5em;
+  margin:1em 2em;
 }
 
 form.checkoutForm > div.form-group > div
 {
+  -webkit-flex:1 1 auto;
+  flex:1 1 auto;
   -webkit-display:flex;
   display:flex;
   -webkit-align-items:center;
   align-items:center;
+}
+
+form.checkoutForm > div.form-group > div > label
+{
+  margin-right:3em;
+  -webkit-flex:0 0 auto;
+  flex:0 0 auto;
+}
+
+form.checkoutForm > div.form-group > div > div.radioContainer
+{
+  font-size:1.5em;
+  text-align:left;
+  -webkit-flex:1 1 auto;
+  flex:1 1 auto;
+}
+
+form.checkoutForm > div.form-group > div > div.radioContainer > label
+{
+  margin-right:1em;
+}
+
+form.checkoutForm > div.form-group > div > input[type='checkbox']
+{
+  max-width:25px;
+  max-height:25px;
 }

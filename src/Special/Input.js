@@ -26,13 +26,12 @@ const input = (props) => {
     //Radio buton - name="someName" when they belong to the same category
     case('input'):
     case('checkbox'):
-    case('radio'):
       inputElement =
       <input
         className="form-control"
-        {...props.details.elementConfig}
-        value={props.details.value}
-        onChange={props.details.changed}
+        {...props.elementConfig}
+        value={props.value}
+        onChange={props.specificHandler || props.changed}
       />
       ;
     break;
@@ -61,6 +60,20 @@ const input = (props) => {
             ))
           }
         </select>
+      ;
+    break;
+    case('radio'):
+      inputElement =
+        <div className="radioContainer">
+        {
+          props.elementConfig.options.map(anOption => (
+              <>
+              <input type="radio" name={props.elementConfig.name} value={anOption.value} onChange={props.changed}/>
+              <label>{anOption.displayValue}</label>
+              </>
+          ))
+        }
+        </div>
       ;
     break;
     default:
