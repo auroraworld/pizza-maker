@@ -71,8 +71,8 @@ const input = (props) => {
                 <input type="radio"
                   name={props.elementConfig.name}
                   value={anOption.value}
-                  onChange={props.changed}
                   checked={anOption.checked}
+                  onChange={() => {props.specificHandler(index)}}
                 />
                 <label>{anOption.displayValue}</label>
               </div>
@@ -88,7 +88,7 @@ const input = (props) => {
         {...props.elementConfig}
         value={props.value}
         onChange={props.changed}
-        placeholder={'da eba'}
+        placeholder={'...'}
       />
       ;
     break;
