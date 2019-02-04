@@ -184,6 +184,13 @@ class PizzaBuilder extends Component {
     this.setState({pizzaSaved: true});
   };
 
+
+  //We need to map the state (Redux) to this component's props
+  
+
+
+
+
   //The render method returns JSX that we print
 
   //!Note: to cycle through an object with map (for printing in render),
