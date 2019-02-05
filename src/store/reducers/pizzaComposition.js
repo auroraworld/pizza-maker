@@ -1,10 +1,23 @@
 //Import the actions
 import * as actions from './../actions/actions.js';
 
+/*
+    Note: Input controlled error if we leave initialState to {} (empty object)
+    since we assign (ex. : .coldCuts) to the input element.
+    To circumvent this, import stuff from IngredientsInfo.js and give 0
+    to all the keys there (this will be later modified when the app initializes)
+*/
+import { ingredientsInfoStatic } from './../../Special/IngredientsInfo.js';
+
+
+
 //Initial state of the pizza composition: nothing
 const initialState = {
-
 };
+
+Object.keys(ingredientsInfoStatic).forEach(key => {
+  initialState[key] = 0;
+});
 
 
 //And now, the reducer
@@ -12,7 +25,6 @@ const reducer = (state = initialState, action) => {
   //Keep the compiler happy
   let newValue = '';
   let newState = {};
-
   switch(action.type)
   {
     case actions.COMPOSITION_INITIALIZE:

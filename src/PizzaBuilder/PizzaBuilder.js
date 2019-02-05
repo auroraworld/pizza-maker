@@ -12,9 +12,15 @@ import ShowScreen from './ShowScreen/ShowScreen.js';
 import OrderSummary from './../Ordering/OrderSummary.js';
 import PizzaLoader from './../Loading/PizzaLoader.js';
 
+//Connect with Redux
+import { connect } from 'react-redux';
+//Import the actions
+import * as actions from './../store/actions/actions.js';
 
 
-class PizzaBuilder extends Component {
+
+class PizzaBuilder extends Component
+{
 
   //We're going to need to call the constructor so we can construct our state
   //Based on the info above.
@@ -22,9 +28,6 @@ class PizzaBuilder extends Component {
   {
     super(props);
     this.state = {
-      pizzaComposition: {
-
-      },
       ingredientsInfo: {...ingredientsInfoStatic},
       basePrice: 3.00,
       checkoutPageActivated: false,
@@ -43,7 +46,7 @@ class PizzaBuilder extends Component {
   //Note: when in constructor, we need to directly modify the state!
   fillPizzaComposition = () =>
   {
-    this.state.pizzaComposition = this.generateEmptyPizza();
+    this.props.onLoadInitialComposition(this.generateEmptyPizza());
   };
 
   //Generates an empty pizza
@@ -66,10 +69,10 @@ class PizzaBuilder extends Component {
   calculateTotalPrice = () =>
   {
     let total = this.state.basePrice;
-    let keysIngredients = Object.keys(this.state.pizzaComposition);
+    let keysIngredients = Object.keys(this.props.pizzaComposition);
     for(let i=0; i<keysIngredients.length; i++)
     {
-      total += this.state.pizzaComposition[keysIngredients[i]]*this.state.ingredientsInfo[keysIngredients[i]].price;
+      total += this.props.pizzaComposition[keysIngredients[i]]*this.state.ingredientsInfo[keysIngredients[i]].price;
     }
 
     return parseFloat(Math.round(total * 100) / 100).toFixed(2);
@@ -77,27 +80,30 @@ class PizzaBuilder extends Component {
 
   //Click handler method in PizzaBuilder which contains IngredientBlock
   //which in turn contians
+  //Note: we take care of the logic here since we need to activate other
+  //parts of state (saving enabled, checkout enabled, etc)
   clickHandler = (type, value) =>
   {
-    let incrementation = value ? 1 : -1;
-
-    //Make a new copy (not only a reference but for real)
-    let newComposition = {...this.state.pizzaComposition};
-
-    newComposition[type] = newComposition[type] + incrementation;
-
-    if(newComposition[type] < 0){
-      newComposition[type] = 0;
-    }
-    //Only save the pizza when something actually changed
-    //Otherwise: from 0 to 0, it will toggle the Save Button
-    else
+    //If the value is true, then we increment
+    if(value)
     {
+      //Increment? always
+      this.props.onIncrementIngredient(type);
       this.setState({pizzaSaved: false});
     }
+    else
+    {
+      //Decrement? only if not 0!
+      if(this.props.pizzaComposition[type] > 0)
+      {
+        this.props.onDecrementIngredient(type);
+        this.setState({pizzaSaved: false});
+      }
+    }
 
-    this.setState({pizzaComposition: newComposition});
     this.checkoutPageToggler(false);
+
+    console.log('the props ingredients', this.props.pizzaComposition);
   };
 
   //Enable or disable button based on a condition
@@ -110,7 +116,7 @@ class PizzaBuilder extends Component {
   //Reset the pizza
   resetPizza = () =>
   {
-    this.setState({pizzaComposition: this.generateEmptyPizza()});
+    this.props.onLoadInitialComposition(this.generateEmptyPizza());
     this.setState({pizzaSaved: false});
     this.checkoutPageToggler(false);
 
@@ -149,7 +155,7 @@ class PizzaBuilder extends Component {
     //Depending on the confirmation number, different operations:
     if(this.state.pizzaConfirmationNumber != 0)
     {
-      axios.put('/savedPizza/' + this.state.pizzaConfirmationNumber + ".json", {pizzaComposition: this.state.pizzaComposition})
+      axios.put('/savedPizza/' + this.state.pizzaConfirmationNumber + ".json", {pizzaComposition: this.props.pizzaComposition})
       .then((response) => {
         this.setState({pizzaSaved: true});
       })
@@ -158,7 +164,7 @@ class PizzaBuilder extends Component {
     else
     {
       //post - first time
-      axios.post('/savedPizza.json', {pizzaComposition: this.state.pizzaComposition})
+      axios.post('/savedPizza.json', {pizzaComposition: this.props.pizzaComposition})
       .then((response) => {
         this.setState({pizzaSaved: true});
         this.setState({pizzaConfirmationNumber: response.data.name});
@@ -178,17 +184,11 @@ class PizzaBuilder extends Component {
   //Load info that was fetched  - in this case, pizza composition
   loadPizzaComposition = (newComposition, newNumber) =>
   {
-    this.setState({pizzaComposition: newComposition});
+    this.props.onLoadInitialComposition(newComposition);
     this.toggleLoadWindow();
     this.setState({pizzaConfirmationNumber: newNumber});
     this.setState({pizzaSaved: true});
   };
-
-
-  //We need to map the state (Redux) to this component's props
-  
-
-
 
 
   //The render method returns JSX that we print
@@ -205,7 +205,7 @@ class PizzaBuilder extends Component {
       orderWindow = <OrderSummary
                       checkoutPageToggle={this.checkoutPageToggler}
                       ingredientsInfo={this.state.ingredientsInfo}
-                      pizzaComposition={this.state.pizzaComposition}
+                      pizzaComposition={this.props.pizzaComposition}
                       totalPrice={this.calculateTotalPrice()}
                       />;
     }
@@ -232,14 +232,14 @@ class PizzaBuilder extends Component {
 
               <div className="row">
                   <ShowScreen
-                    pizzaComposition={this.state.pizzaComposition}
+                    pizzaComposition={this.props.pizzaComposition}
                     ingredientsInfo={this.state.ingredientsInfo}
                     pizzaCrustImage={pizzaCrustImage}
                    />
                   <IngredientBlock
                     totalPrice={this.calculateTotalPrice()}
                     ingredientsInfo={this.state.ingredientsInfo}
-                    pizzaComposition={this.state.pizzaComposition}
+                    pizzaComposition={this.props.pizzaComposition}
                     clickHandler={this.clickHandler}
                     checkoutEnabled={this.enableCheckoutButton()}
                     savingEnabled={!this.state.pizzaSaved}
@@ -258,5 +258,23 @@ class PizzaBuilder extends Component {
 
 }
 
+//After the class definition -> that's when we make use of Redux
+//We need to map the state (Redux) to this component's props
+const mapStateToLocalProps = state => {
+  return {
+      pizzaComposition: state.pizzaReducer,
+  };
+};
+
+//And also the dispatch actions to props
+const mapDispatchActionsToProps = dispatch => {
+  return{
+    onLoadInitialComposition: (initialComposition) => dispatch({type:actions.COMPOSITION_INITIALIZE, payload: initialComposition}),
+    onIncrementIngredient: (ingredientType) => dispatch({type:actions.COMPOSITION_INCREMENT, payload: {ingredient: ingredientType}}),
+    onDecrementIngredient: (ingredientType) => dispatch({type:actions.COMPOSITION_DECREMENT, payload: {ingredient: ingredientType}}),
+  }
+};
+
+
 //We still need to export it
-export default PizzaBuilder;
+export default connect(mapStateToLocalProps, mapDispatchActionsToProps)(PizzaBuilder);
