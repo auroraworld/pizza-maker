@@ -29,19 +29,18 @@ const reducer = (state = initialState, action) => {
   {
     case actions.COMPOSITION_INITIALIZE:
       return {...action.payload};
-    break;
     case actions.COMPOSITION_INCREMENT:
       newValue = state[action.payload.ingredient] + 1;
       newState = {...state};
       newState[action.payload.ingredient] = newValue;
       return newState;
-    break;
-      case actions.COMPOSITION_DECREMENT:
+    case actions.COMPOSITION_DECREMENT:
       newValue = state[action.payload.ingredient] - 1;
       newState = {...state};
       newState[action.payload.ingredient] = newValue;
       return newState;
-    break;
+    default:
+      return state;
   }
 
   //Redux asks us to return the initial state by default

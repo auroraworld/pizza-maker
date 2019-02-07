@@ -31,8 +31,6 @@ class PizzaBuilder extends Component
       ingredientsInfo: {...ingredientsInfoStatic},
       basePrice: 3.00,
       checkoutPageActivated: false,
-      pizzaSaved: false,
-      pizzaConfirmationNumber: 0,
       loadWindowActivated: false,
     };
     this.fillPizzaComposition();
@@ -89,7 +87,7 @@ class PizzaBuilder extends Component
     {
       //Increment? always
       this.props.onIncrementIngredient(type);
-      this.setState({pizzaSaved: false});
+      this.props.pizzaSavedHandler(false);
     }
     else
     {
@@ -97,13 +95,11 @@ class PizzaBuilder extends Component
       if(this.props.pizzaComposition[type] > 0)
       {
         this.props.onDecrementIngredient(type);
-        this.setState({pizzaSaved: false});
+        this.props.pizzaSavedHandler(false);
       }
     }
 
     this.checkoutPageToggler(false);
-
-    console.log('the props ingredients', this.props.pizzaComposition);
   };
 
   //Enable or disable button based on a condition
@@ -117,7 +113,7 @@ class PizzaBuilder extends Component
   resetPizza = () =>
   {
     this.props.onLoadInitialComposition(this.generateEmptyPizza());
-    this.setState({pizzaSaved: false});
+    this.props.pizzaSavedHandler(false);
     this.checkoutPageToggler(false);
 
   };
@@ -153,11 +149,11 @@ class PizzaBuilder extends Component
   savePizzaConfiguration = () =>
   {
     //Depending on the confirmation number, different operations:
-    if(this.state.pizzaConfirmationNumber != 0)
+    if(this.props.pizzaBuild.confirmationNumber != 0)
     {
-      axios.put('/savedPizza/' + this.state.pizzaConfirmationNumber + ".json", {pizzaComposition: this.props.pizzaComposition})
+      axios.put('/savedPizza/' + this.props.pizzaBuild.confirmationNumber + ".json", {pizzaComposition: this.props.pizzaComposition})
       .then((response) => {
-        this.setState({pizzaSaved: true});
+        this.props.pizzaSavedHandler(true);
       })
       .catch((error) => {console.log('Error saving pizza', error)});
     }
@@ -166,8 +162,8 @@ class PizzaBuilder extends Component
       //post - first time
       axios.post('/savedPizza.json', {pizzaComposition: this.props.pizzaComposition})
       .then((response) => {
-        this.setState({pizzaSaved: true});
-        this.setState({pizzaConfirmationNumber: response.data.name});
+        this.props.pizzaSavedHandler(true);
+        this.props.pizzaConfirmationNumberHandler(response.data.name);
       })
       .catch((error) => {console.log('Error saving pizza', error)});
     }
@@ -186,8 +182,8 @@ class PizzaBuilder extends Component
   {
     this.props.onLoadInitialComposition(newComposition);
     this.toggleLoadWindow();
-    this.setState({pizzaConfirmationNumber: newNumber});
-    this.setState({pizzaSaved: true});
+    this.props.pizzaConfirmationNumberHandler(newNumber);
+    this.props.pizzaSavedHandler(true);
   };
 
 
@@ -242,11 +238,11 @@ class PizzaBuilder extends Component
                     pizzaComposition={this.props.pizzaComposition}
                     clickHandler={this.clickHandler}
                     checkoutEnabled={this.enableCheckoutButton()}
-                    savingEnabled={!this.state.pizzaSaved}
+                    savingEnabled={!this.props.pizzaBuild.isSaved}
                     resetHandler={this.resetPizza}
                     saveHandler={this.savePizzaConfiguration}
                     checkoutHandler={this.checkoutPageToggler}
-                    pizzaConfirmationNumber={this.state.pizzaConfirmationNumber}
+                    pizzaConfirmationNumber={this.props.pizzaBuild.confirmationNumber}
                     toggleLoadWindow={this.toggleLoadWindow}
                     />
               </div>
@@ -263,6 +259,7 @@ class PizzaBuilder extends Component
 const mapStateToLocalProps = state => {
   return {
       pizzaComposition: state.pizzaReducer,
+      pizzaBuild: state.pizzaBuild,
   };
 };
 
@@ -272,6 +269,8 @@ const mapDispatchActionsToProps = dispatch => {
     onLoadInitialComposition: (initialComposition) => dispatch({type:actions.COMPOSITION_INITIALIZE, payload: initialComposition}),
     onIncrementIngredient: (ingredientType) => dispatch({type:actions.COMPOSITION_INCREMENT, payload: {ingredient: ingredientType}}),
     onDecrementIngredient: (ingredientType) => dispatch({type:actions.COMPOSITION_DECREMENT, payload: {ingredient: ingredientType}}),
+    pizzaSavedHandler: (value) => dispatch({type:actions.BUILD_SAVED, payload: {isSaved: value}}),
+    pizzaConfirmationNumberHandler: (value) => dispatch({type:actions.BUILD_CONFIRMATIONNUMBER, payload: {confirmationNumber: value}}),
   }
 };
 

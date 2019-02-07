@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import Input from './../Special/Input.js';
 
+//The chosen ingredients info
+import { connect } from 'react-redux';
+import { ingredientsInfoStatic, pizzaCrustImage } from './../Special/IngredientsInfo.js';
+
+
 class CheckoutPage extends Component
 {
   constructor(props)
@@ -247,14 +252,14 @@ class CheckoutPage extends Component
       case 'name':
         checkResult = this.standardVerification(this.state.orderForm.name.value, {type: 'required'});
         validity = checkResult.outcome;
-        if(checkResult.message != '')
+        if(checkResult.message !== '')
         {
           messages.push('Name: ' + checkResult.message);
         }
 
         checkResult = this.standardVerification(this.state.orderForm.name.value, {type: 'minLength', minLength: 2});
         validity = checkResult.outcome && validity;
-        if(checkResult.message != '')
+        if(checkResult.message !== '')
         {
           messages.push('Name: ' + checkResult.message);
         }
@@ -262,7 +267,7 @@ class CheckoutPage extends Component
         checkResult = this.standardVerification(this.state.orderForm.name.value, {type: 'maxLength', maxLength: 20});
         validity = checkResult.outcome && validity;
 
-        if(checkResult.message != '')
+        if(checkResult.message !== '')
         {
           messages.push('Name: ' + checkResult.message);
         }
@@ -272,14 +277,14 @@ class CheckoutPage extends Component
       case 'email':
       checkResult = this.standardVerification(this.state.orderForm.email.value, {type: 'isEmail'});
       validity = checkResult.outcome && validity;
-      if(checkResult.message != '')
+      if(checkResult.message !== '')
       {
         messages.push('Email: ' + checkResult.message);
       }
 
       checkResult = this.standardVerification(this.state.orderForm.email.value, {type: 'minLength', minLength:4});
       validity = checkResult.outcome && validity;
-      if(checkResult.message != '')
+      if(checkResult.message !== '')
       {
         messages.push('Email: ' + checkResult.message);
       }
@@ -290,7 +295,7 @@ class CheckoutPage extends Component
         {
           checkResult = this.standardVerification(this.state.orderForm.couponCode.value, {type: 'required'});
           validity = checkResult.outcome && validity;
-          if(checkResult.message != '')
+          if(checkResult.message !== '')
           {
             messages.push('Coupon code: ' + checkResult.message);
           }
@@ -360,6 +365,39 @@ class CheckoutPage extends Component
 
   //The render method
   render(){
+    let ingredientsInfoArray = [];
+
+    Object.keys(this.props.pizzaComposition).forEach((aKey, index) => {
+      if(this.props.pizzaComposition[aKey] > 0)
+      {
+        ingredientsInfoArray.push({
+          id: aKey,
+          details: {
+            quantity: this.props.pizzaComposition[aKey],
+            name: ingredientsInfoStatic[aKey].display,
+            image: ingredientsInfoStatic[aKey].image,
+          },
+        });
+      }
+    });
+
+    //Info for the ingredients
+    let ingredientInfo = (
+      <div className="ingredientInfo">
+        {
+          ingredientsInfoArray.map(element => {
+            return(
+              <div className="singleIngredient" key={element.id}>
+                <h4>{element.details.name}</h4>
+                <img src={element.details.image}/>
+                <h3>{element.details.quantity}</h3>
+              </div>
+            );
+          })
+        }
+      </div>
+    );
+
     //Let's create an array, out of which we'll map the form
     const formArray = [];
 
@@ -407,6 +445,8 @@ class CheckoutPage extends Component
 
     return (
       <div className='formContainer'>
+        <h2>Ingredient info:</h2>
+        {ingredientInfo}
         <h2>Checkout info:</h2>
         {form}
         <div className="errorMsgs">
@@ -427,4 +467,11 @@ class CheckoutPage extends Component
 
 }
 
-export default CheckoutPage;
+//The state ingredients
+const mapStateToProps = state => {
+  return{
+    pizzaComposition: state.pizzaReducer,
+  }
+};
+
+export default connect(mapStateToProps)(CheckoutPage);

@@ -304,3 +304,35 @@ div.errorMsgs > h2
   font-weight:normal;
   font-size:1.25em;
 }
+
+div.formContainer > div.ingredientInfo
+{
+  display:-webkit-flex;
+  display:flex;
+  -webkit-flex-wrap:wrap;
+  flex-wrap:wrap;
+  -webkit-justify-content:center;
+  justify-content: center;
+  max-width:800px;
+  margin:0 auto;
+}
+
+div.formContainer > div.ingredientInfo > div.singleIngredient
+{
+  display:-webkit-flex;
+  display:flex;
+  -webkit-flex-direction:column;
+  flex-direction: column;
+  margin:1.25em;
+}
+
+div.formContainer > div.ingredientInfo > div.singleIngredient > img
+{
+  max-width:150px;
+}
+
+div.formContainer > div.ingredientInfo > div.singleIngredient > h3,
+div.formContainer > div.ingredientInfo > div.singleIngredient > h4
+{
+  font-size:1.25em;
+}
